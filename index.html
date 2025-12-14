@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💥 Carbid Schiet Calculator (Optimaal)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Algemene Stijl */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #2c3e50; /* Donkerblauw/Antraciet */
+            color: #ecf0f1;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* Container Stijl */
+        .container {
+            background-color: #34495e; /* Iets lichter donkerblauw */
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 550px;
+            text-align: center;
+        }
+
+        /* Koptekst */
+        h1 {
+            color: #e74c3c; /* Levendig rood */
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            color: #bdc3c7;
+        }
+
+        /* Invoer veld */
+        label {
+            display: block;
+            margin-bottom: 15px;
+            font-weight: 700;
+            font-size: 1.2em;
+            color: #ecf0f1;
+        }
+        input[type="number"] {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-bottom: 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: #ecf0f1;
+            color: #34495e;
+            font-size: 1.3em;
+            text-align: center;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Bereken Knop */
+        button {
+            background-color: #e74c3c; /* Rood accent */
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        button:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Resultaat Veld */
+        #result {
+            margin-top: 35px;
+            padding: 25px;
+            background-color: #2c3e50;
+            border-radius: 10px;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        #result p {
+            margin: 5px 0;
+            font-size: 1.2em;
+        }
+        #result .water-output {
+            color: #f1c40f; /* Geel accent voor antwoord */
+            font-size: 2.2em;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        /* Uitleg Sectie */
+        .explanation {
+            margin-top: 50px;
+            border-top: 1px dashed #7f8c8d;
+            padding-top: 30px;
+            text-align: left;
+            font-size: 0.9em;
+            color: #bdc3c7;
+        }
+        .explanation h3 {
+            color: #ecf0f1;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .explanation ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+        .explanation strong {
+            color: #f1c40f;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>💥 De Perfecte Knal</h1>
+    <p class="subtitle">Carbid Water Calculator op basis van uw proefdata.</p>
+    
+    <label for="volume">Voer het volume in van uw schietblik (in Liters):</label>
+    <input type="number" id="volume" placeholder="Bijvoorbeeld 50 L" required>
+    
+    <button onclick="calculateWater()">BEREKEN</button>
+    
+    <div id="result">
+        <p>Voer een volume in en klik op 'BEREKEN' om het resultaat te zien.</p>
+    </div>
+    
+    <div class="explanation">
+        <h3>Gebruikte Logica:</h3>
+        <ul>
+            <li><strong>Splitsingsgrens:</strong> 25 Liter.</li>
+            <li>
+                <strong>Kleine Volumes (&lt; 25 L):</strong> Gebruikt factor <strong>0,593</strong>. Dit levert de veilige **7,4%** acetyleenconcentratie op, rekening houdend met de lagere gasopbrengst bij weinig water.
+            </li>
+            <li>
+                <strong>Grote Volumes ($\ge$ 25 L):</strong> Gebruikt factor <strong>0,53</strong>. Dit levert de optimale **8%** acetyleenconcentratie op, gebaseerd op de hogere gasopbrengst bij grotere hoeveelheden water.
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    function calculateWater() {
+        // Haal het ingevoerde volume op
+        const V_schietblik_input = document.getElementById('volume').value;
+        const V_schietblik = parseFloat(V_schietblik_input);
+        const resultDiv = document.getElementById('result');
+
+        // Validatie
+        if (isNaN(V_schietblik) || V_schietblik <= 0 || V_schietblik_input.trim() === "") {
+            resultDiv.innerHTML = '<p style="color: #e74c3c;">Voer alstublieft een geldig volume (getal groter dan 0) in.</p>';
+            return;
+        }
+
+        let V_water; // Benodigd water in mL
+        let factor;  // De gebruikte factor
+        let targetPercentage; // Het doelpercentage
+
+        // Logica voor het automatisch kiezen van de formule
+        if (V_schietblik < 25) {
+            factor = 0.593;
+            targetPercentage = "7,4% (Veilige Mix)";
+            V_water = V_schietblik * factor;
+        } else {
+            factor = 0.53;
+            targetPercentage = "8,0% (Optimale Knal)";
+            V_water = V_schietblik * factor;
+        }
+
+        const V_water_rounded = V_water.toFixed(2);
+
+        // De uitvoer in het resultaat-vak
+        resultDiv.innerHTML = `
+            <p>Voor een ${V_schietblik.toFixed(1)} L schietblik:</p>
+            <p class="water-output">${V_water_rounded} mL</p>
+            <p><strong>water</strong> op het carbid.</p>
+            <p style="font-size: 0.9em; margin-top: 15px;">(Gebaseerd op ${targetPercentage} / factor ${factor.toFixed(3)})</p>
+        `;
+    }
+</script>
+
+</body>
+</html>
