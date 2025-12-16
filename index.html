@@ -69,7 +69,7 @@
             background-color: #439966; /* middelmatig donkere groentint */
             color: white;
             padding: 15px 30px;
-            border: none;
+            border: 2px solid #D22B2B; /* rode randkleur */
             border-radius: 8px;
             font-size: 1.2em;
             font-weight: 700;
@@ -135,7 +135,7 @@
 
 <div class="container">
     <h1>💥 De Perfecte Knal ?</h1>
-    <p class="subtitle">Voor als je niet weet hoe veel Water er op je Carbid moet komen.</p>
+    <p class="subtitle">Voor als je niet weet hoeveel water er op je Carbid moet komen.</p>
     
     <label for="volume">Voer het volume in van uw schietblik (in Liters):</label>
     <input type="number" id="volume" placeholder="Bijvoorbeeld 50 L" required>
@@ -147,16 +147,13 @@
     </div>
     
     <div class="explanation">
-        <h3>Gebruikte Logica:</h3>
-        <ul>
-            <li><strong>Splitsingsgrens:</strong> 25 Liter.</li>
-            <li>
-                <strong>Kleine Volumes (&lt; 25 L):</strong> Gebruikt factor <strong>0,593</strong>. Dit levert de veilige **7,4%** acetyleenconcentratie op, rekening houdend met de lagere gasopbrengst bij weinig water.
-            </li>
-            <li>
-                <strong>Grote Volumes ($\ge$ 25 L):</strong> Gebruikt factor <strong>0,53</strong>. Dit levert de optimale **8%** acetyleenconcentratie op, gebaseerd op de hogere gasopbrengst bij grotere hoeveelheden water.
-            </li>
-        </ul>
+        <h3>Ontwikkeld door Mart den Boer - 8 januari 2026</h3>
+        <h3>De gebruikte formule</h3>
+        <p>
+            <strong>Splitsingsgrens:</strong> 16 Liter.<br>
+            <strong>Bij kleiner dan 16 Liter:</strong> Wordt een factor van <strong>0,642</strong> gebruikt.<br>
+            <strong>Bij groter dan 16 Liter:</strong> Wordt een factor van <strong>0,594</strong> gebruikt.
+        </p>
     </div>
 </div>
 
@@ -178,13 +175,13 @@
         let targetPercentage; // Het doelpercentage
 
         // Logica voor het automatisch kiezen van de formule
-        if (V_schietblik < 25) {
-            factor = 0.593;
-            targetPercentage = "7,4% (Veilige Mix)";
+        if (V_schietblik < 16) {
+            factor = 0.642;
+            targetPercentage = "(Veilige Mix voor klein volume)";
             V_water = V_schietblik * factor;
         } else {
-            factor = 0.53;
-            targetPercentage = "8,0% (Optimale Knal)";
+            factor = 0.594;
+            targetPercentage = "(Optimale Mix voor grote volumes)";
             V_water = V_schietblik * factor;
         }
 
